@@ -3,44 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
     <title>E-Commerce Landing Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #131921;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .search-container input {
+            width: 400px;
+            padding: 10px;
+            border: none;
+        }
+        .search-container button {
+            padding: 10px;
+            background-color: #febd69;
+            border: none;
+            cursor: pointer;
+        }
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .nav-links a {
+            margin: 0 15px;
+            color: #ffffff;
+            text-decoration: none;
+        }
+        .cart-icon {
+            position: relative;
+            margin-left: 20px;
+            cursor: pointer;
+        }
+        .cart-count {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+        .category-menu, .sorting-menu {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .category-menu button, .sorting-menu button {
+            padding: 10px;
+            margin: 5px;
+            background-color: #febd69;
+            border: none;
+            cursor: pointer;
+        }
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px;
+        }
+        .product {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 10px;
+            padding: 10px;
+            text-align: center;
+            width: 200px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .product img {
+            max-width: 100%;
+            height: 150px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+        .modal-content img {
+            max-width: 100%;
+        }
+        #cart-summary {
+            display: none;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 20px;
+            position: fixed;
+            right: 20px;
+            top: 80px;
+            width: 300px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        footer {
+            background-color: #131921;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+        .loading {
+            text-align: center;
+        }
+        .review-section {
+            margin-top: 15px;
+        }
+        .review-section h3 {
+            margin: 10px 0;
+        }
+        .review-section input {
+            width: 50px;
+            margin-right: 10px;
+        }
+        .wishlist-button {
+            background-color: #ffcc00;
+            padding: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <div class="logo">My E-Commerce Store</div>
-        <div class="header-right">
-            <input type="text" id="search-bar" placeholder="Search products..." />
-            <button id="cart-btn" onclick="openCart()">Cart (<span id="cart-count">0</span>)</button>
+        <h1>E-Commerce</h1>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search products...">
+            <button onclick="searchProducts()">Search</button>
+        </div>
+        <div class="nav-links">
+            <!-- <a href="#">Today's Deals</a>
+            <a href="#">Customer Service</a>
+            <a href="#">Gift Cards</a>
+            <a href="#">Registry</a> -->
+            <div class="cart-icon" onclick="toggleCart()">
+                🛒 <span class="cart-count" id="cart-count">0</span>
+            </div>
         </div>
     </header>
-    <main>
-        <section class="hero">
-            <h1>Welcome to Our Store</h1>
-            <p>Your one-stop shop for all the best products!</p>
-            <button class="cta-button" onclick="scrollToProducts()">Shop Now</button>
-        </section>
-        <section id="products">
-            <h2>Featured Products</h2>
-            <div id="product-list" class="product-list"></div>
-        </section>
-    </main>
 
-    <!-- Cart Modal -->
-    <div id="cart-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeCart()">&times;</span>
-            <h2>Your Cart</h2>
+    <main>
+        <div class="category-menu">
+            <h2>Categories</h2>
+            <button onclick="filterByCategory('electronics')">Electronics</button>
+            <button onclick="filterByCategory('jewelery')">Jewelry</button>
+            <button onclick="filterByCategory('men\'s clothing')">Men's Clothing</button>
+            <button onclick="filterByCategory('women\'s clothing')">Women's Clothing</button>
+            <button onclick="displayProducts(products)">All Products</button>
+        </div>
+        
+        <div class="sorting-menu">
+            <h2>Sort Products</h2>
+            <button onclick="sortProducts('price')">Price: Low to High</button>
+            <button onclick="sortProducts('rating')">Rating: High to Low</button>
+        </div>
+
+        <div id="loading" class="loading">Loading products...</div>
+        <div id="product-list" class="product-list"></div>
+
+        <div id="cart-summary" class="cart-summary">
+            <h2>Cart Summary</h2>
             <div id="cart-items"></div>
             <button onclick="checkout()">Checkout</button>
+            <button onclick="toggleCart()">Close</button>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Enhanced E-Commerce Store. All rights reserved.</p>
+    </footer>
+
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span id="modal-close" onclick="closeModal()" style="cursor:pointer;">&times;</span>
+            <h2 id="modal-title"></h2>
+            <img id="modal-image" src="" alt="Product Image">
+            <p id="modal-description"></p>
+            <p id="modal-price"></p>
+            <button id="add-to-cart-button">Add to Cart</button>
+            <div class="review-section">
+                <h3>Rate this product:</h3>
+                <input type="number" id="rating-input" min="1" max="5" placeholder="1-5">
+                <button onclick="submitReview()">Submit Rating</button>
+                <h3>Reviews:</h3>
+                <div id="reviews-list"></div>
+            </div>
+            <button class="wishlist-button" onclick="addToWishlist()">Add to Wishlist</button>
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2024 My E-Commerce Store | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
-    </footer>
-    <div id="notification" class="notification" style="display: none;"></div>
+    <script>
+        let products = [];
+        let cart = [];
+        let wishlist = [];
+        let userLoggedIn = false; // Placeholder for user login status
 
-    <script src="script.js"></script>
+        // Fetch products from fake API
+        async function fetchProducts() {
+            document.getElementById('loading').style.display = 'block';
+            const response = await fetch('https://fakestoreapi.com/products');
+            products = await response.json();
+            document.getElementById('loading').style.display = 'none';
+            displayProducts(products);
+        }
+
+        // Display products on the page
+        function displayProducts(productsToDisplay) {
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';
+            productsToDisplay.forEach(product => {
+                const productElement = document.createElement('div');
+                productElement.className = 'product';
+                productElement.innerHTML = `
+                    <img src="${product.image}" alt="${product.title}">
+                    <h3>${product.title}</h3>
+                    <p>$${product.price.toFixed(2)}</p>
+                    <button onclick="openModal(${product.id})">View Details</button>
+                `;
+                productList.appendChild(productElement);
+            });
+        }
+
+        // Open modal to view product details
+        function openModal(productId) {
+            const product = products.find(p => p.id === productId);
+            document.getElementById('modal-title').innerText = product.title;
+            document.getElementById('modal-image').src = product.image;
+            document.getElementById('modal-description').innerText = product.description;
+            document.getElementById('modal-price').innerText = `$${product.price.toFixed(2)}`;
+            document.getElementById('add-to-cart-button').onclick = () => addToCart(product);
+            document.getElementById('product-modal').style.display = 'block';
+            displayReviews(productId);
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('product-modal').style.display = 'none';
+        }
+
+        // Add product to cart
+        function addToCart(product) {
+            cart.push(product);
+            document.getElementById('cart-count').innerText = cart.length;
+            alert(`${product.title} has been added to your cart.`);
+        }
+
+        // Display cart summary
+        function toggleCart() {
+            const cartSummary = document.getElementById('cart-summary');
+            cartSummary.style.display = (cartSummary.style.display === 'none' || cartSummary.style.display === '') ? 'block' : 'none';
+            updateCartItems();
+        }
+
+        // Update cart items display
+        function updateCartItems() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            cartItemsContainer.innerHTML = '';
+            if (cart.length === 0) {
+                cartItemsContainer.innerText = 'Your cart is empty.';
+            } else {
+                cart.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.innerText = item.title;
+                    cartItemsContainer.appendChild(itemElement);
+                });
+            }
+        }
+
+        // Checkout function
+        function checkout() {
+            if (cart.length === 0) {
+                alert("Your cart is empty. Add items before checkout.");
+                return;
+            }
+            const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
+            alert(`Total amount: $${totalAmount.toFixed(2)}. Thank you for your purchase!`);
+            cart = [];
+            document.getElementById('cart-count').innerText = cart.length;
+            document.getElementById('cart-summary').style.display = 'none';
+            displayProducts(products);
+        }
+
+        // Search products based on input
+        function searchProducts() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filteredProducts = products.filter(product => product.title.toLowerCase().includes(query));
+            displayProducts(filteredProducts);
+        }
+
+        // Filter products by category
+        function filterByCategory(category) {
+            const filteredProducts = products.filter(product => product.category === category);
+            displayProducts(filteredProducts);
+        }
+
+        // Sort products
+        function sortProducts(criteria) {
+            let sortedProducts;
+            if (criteria === 'price') {
+                sortedProducts = [...products].sort((a, b) => a.price - b.price);
+            } else if (criteria === 'rating') {
+                sortedProducts = [...products].sort((a, b) => b.rating.rate - a.rating.rate);
+            }
+            displayProducts(sortedProducts);
+        }
+
+        // Add product to wishlist
+        function addToWishlist() {
+            const productTitle = document.getElementById('modal-title').innerText;
+            if (!wishlist.includes(productTitle)) {
+                wishlist.push(productTitle);
+                alert(`${productTitle} has been added to your wishlist.`);
+            } else {
+                alert(`${productTitle} is already in your wishlist.`);
+            }
+        }
+
+        // Submit a review
+        function submitReview() {
+            const ratingInput = document.getElementById('rating-input');
+            const rating = parseInt(ratingInput.value);
+            if (rating < 1 || rating > 5) {
+                alert("Please enter a rating between 1 and 5.");
+                return;
+            }
+            const productId = products.find(product => product.title === document.getElementById('modal-title').innerText).id;
+            const reviewsList = document.getElementById('reviews-list');
+            const reviewItem = document.createElement('div');
+            reviewItem.innerText = `Rating: ${rating}`;
+            reviewsList.appendChild(reviewItem);
+            ratingInput.value = ''; // Clear input after submitting
+        }
+
+        // Display reviews for a product
+        function displayReviews(productId) {
+            const reviewsList = document.getElementById('reviews-list');
+            reviewsList.innerHTML = ''; // Clear existing reviews
+            // Here you would fetch and display the actual reviews for the product
+            // For demonstration, we use hardcoded values or simulate fetching
+        }
+
+        // Fetch products on page load
+        window.onload = fetchProducts;
+    </script>
 </body>
 </html>
